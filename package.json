@@ -1,0 +1,14 @@
+{
+  "name": "node-util-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "dependencies": {
+    "glob": "^10.3.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
+  }
+}
