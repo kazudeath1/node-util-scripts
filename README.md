@@ -30,6 +30,6 @@ npx ts-node <スクリプトのパス> <引数>
 
 
 ```bash
-npx ts-node scripts/analyzeVueComponents.ts ../red-student.front
+npx ts-node src/analyzeVueComponents.ts ../red-student.front
 ```
 
