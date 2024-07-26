@@ -7,6 +7,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "@vue/compiler-sfc": "^3.4.21",
     "glob": "^10.3.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
