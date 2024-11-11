@@ -18,11 +18,14 @@ if (!fs.existsSync(outputDir)) {
 // コンポーネント名とファイルパスを保存するSet
 const componentNames = new Set<string>();
 const componentPaths = new Set<string>();
-const ignorePatterns = [`${dirPath}/node_modules/**`];
 
 // Vueファイルのパスを取得する関数
-const getVueFilePaths = (dirPath: string): Promise<string[]> => {
-  return glob(`${dirPath}/**/*.vue`, { ignore: ignorePatterns });
+const getSearchTargetVueFilePaths = (dirPath: string): Promise<string[]> => {
+  return glob(`${dirPath}/**/*.vue`, { ignore: [`${dirPath}/node_modules/**`] });
+};
+
+const getOutputTargetVueFilePaths = (dirPath: string): Promise<string[]> => {
+  return glob(`${dirPath}/**/*.vue`, { ignore: [`${dirPath}/node_modules/**`, `${dirPath}/pages/**`, `${dirPath}/layouts/**`, `${dirPath}/*.vue`] });
 };
 
 // ファイルからコンポーネント名とパスを抽出する関数
@@ -35,11 +38,7 @@ const extractComponents = async (filePath: string) => {
   if (templateMatch) {
     templateMatch.forEach((template) => {
       const names = template.match(/<([A-Z][a-zA-Z0-9]*)\b/g);
-      names?.forEach((name) => {
-        const cn = name.replace('<', '');
-        componentNames.add(cn);
-        componentNames.add('Lazy' + cn);
-      });
+      names?.forEach((name) => componentNames.add(name.replace('<', '')));
     });
   }
 
@@ -78,7 +77,7 @@ const findAndLogUnusedComponents = async (vueFilePaths: string[]) => {
 
   vueFilePaths.forEach((filePath) => {
     const fileName = path.basename(filePath, '.vue');
-    if (!componentNames.has(fileName) && !componentPaths.has(filePath)) {
+    if (!componentNames.has(fileName) && !componentNames.has('Lazy' + fileName) && !componentPaths.has(filePath)) {
       unusedFiles.push(filePath);
     }
   });
@@ -88,8 +87,8 @@ const findAndLogUnusedComponents = async (vueFilePaths: string[]) => {
 
 // メイン関数
 const main = async () => {
-  const vueFilePaths = await getVueFilePaths(dirPath);
-
+  const vueFilePaths = await getSearchTargetVueFilePaths(dirPath);
+  const outputVueFilePaths = await getOutputTargetVueFilePaths(dirPath);
   fs.writeFileSync(path.join(outputDir, 'vueFiles.txt'), vueFilePaths.sort().join('\n'));
 
   for (const filePath of vueFilePaths) {
@@ -99,7 +98,7 @@ const main = async () => {
   fs.writeFileSync(path.join(outputDir, 'usedComponentNames.txt'), Array.from(componentNames).sort().join('\n'));
   fs.writeFileSync(path.join(outputDir, 'usedComponentPaths.txt'), Array.from(componentPaths).sort().join('\n'));
 
-  const unusedFiles = await findAndLogUnusedComponents(vueFilePaths);
+  const unusedFiles = await findAndLogUnusedComponents(outputVueFilePaths);
   const outputFilePath = path.join(outputDir, 'unusedComponentPaths.txt');
   fs.writeFileSync(
     outputFilePath,
