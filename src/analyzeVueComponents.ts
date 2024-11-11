@@ -35,7 +35,11 @@ const extractComponents = async (filePath: string) => {
   if (templateMatch) {
     templateMatch.forEach((template) => {
       const names = template.match(/<([A-Z][a-zA-Z0-9]*)\b/g);
-      names?.forEach((name) => componentNames.add(name.replace('<', '')));
+      names?.forEach((name) => {
+        const cn = name.replace('<', '');
+        componentNames.add(cn);
+        componentNames.add('Lazy' + cn);
+      });
     });
   }
 
